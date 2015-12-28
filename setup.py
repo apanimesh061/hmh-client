@@ -17,5 +17,5 @@ setup(
     description="A Python wrapper around the HMH Developer Portal API",
     long_description=(read("readme.rst") + "\n\n" + read("authors.rst") + "\n\n" + read("CHANGES")),
     packages=find_packages(exclude=["tests*"]),
-    install_requires=["poster"]
+    install_requires=["poster", "requests"]
 )

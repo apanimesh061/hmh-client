@@ -18,7 +18,7 @@ There are two version of this API:
 
 All the wrappers are currently dealing with the V1 API.
 
-I used `urllib2 ` library for this project but I am planning to shift to `requests` as I have founf it more developer friendly.
+I used `urllib2` library for this project but I am planning to shift to `requests` as I have founf it more developer friendly.
 
 ### Version
 0.0.1

@@ -1,6 +1,5 @@
-import urllib2
-from urllib import urlencode
-import json
+import requests
+from requests import exceptions
 import cPickle
 import sys
 
@@ -14,7 +13,7 @@ class Object(object):
                 self.__dict__[k] = v
 
 
-class HmhClient(object):
+class Credentials(object):
     def __init__(self, request_url, hmh_api_key, client_id, grant_type, username, password, refresh_token=None):
         assert isinstance(request_url, (str, unicode)), request_url
         assert isinstance(hmh_api_key, (str, unicode)), hmh_api_key
@@ -37,46 +36,19 @@ class HmhClient(object):
             "client_id": self.client_id,
             "grant_type": self.grant_type,
             "username": self.username,
-            "password": self.password
+            "password": self.password,
+            "Content-Type": "application/x-www-form-urlencoded"
         }
         if self.grant_type == "refresh_token" and self.refresh_token:
             values["refresh_token"] = self.refresh_token
-
-        data = urlencode(values)
-        req = urllib2.Request(self.request_url, data)
-        req.add_header("Vnd-HMH-Api-Key", self.hmh_api_key)
-        req.add_header("Content-Type", "application/x-www-form-urlencoded")
+            from pprint import pprint
+            pprint(values)
         try:
-            response = urllib2.urlopen(req)
-            response_header = response.info().dict
-            response_body = response.read()
-
-            json_acceptable_string = response_body.replace("'", "\"")
-            response_body_dict = json.loads(json_acceptable_string)
-
-            temp = response_body_dict['sub']
-            response_body_dict['sub'] = dict(map(lambda a: a.split("="), temp.split(',')))
-            return response_body_dict
-        except urllib2.HTTPError, e:
-            if e.code >= 500:
-                print "Some issue with the server. Please try once again."
-                print "or try renewing the access token."
-            elif e.code == 401:
-                print "Invalid credentials."
-                print "See if the access token is correct or renew it."
-            elif e.code == 404:
-                print "The requested URL seems to be unavailable."
-            elif e.code == 403:
-                print "This role probably does have access the requested URL."
-            else:
-                print "HTTPError with code", e.code
-            sys.exit(-1)
-        except urllib2.URLError, e:
-            print "Please see if you have the correct URL", e.errno
-            sys.exit(-1)
-        except Exception:
-            import traceback
-            print "Generic Exception", traceback.format_exc()
+            r = requests.post(self.request_url, values)
+            r.raise_for_status()
+            return r.json()
+        except exceptions.RequestException as e:
+            print e
             sys.exit(-1)
 
     @staticmethod
