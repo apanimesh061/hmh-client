@@ -2,6 +2,15 @@ import sys
 import requests
 from requests import exceptions
 import json
+import logging
+import httplib
+
+httplib.HTTPConnection.debuglevel = 1
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+requests_log = logging.getLogger("requests.packages.urllib3")
+requests_log.setLevel(logging.DEBUG)
+requests_log.propagate = True
 
 
 class DocumentModel(object):
@@ -64,10 +73,24 @@ class DocumentsConnection(object):
         self.api_key = api_key
 
     def _delete_request(self):
-        pass
+        try:
+            request_url = self.base_url + self.info_uri + "/" + self.document_id
+            r = requests.delete(request_url, headers=self.headers)
+            r.raise_for_status()
+            return r.json()
+        except exceptions.RequestException as e:
+            print e
+            sys.exit(-1)
 
     def _put_request(self):
-        pass
+        try:
+            request_url = self.base_url + self.info_uri + "/" + self.document_id
+            r = requests.put(request_url, headers=self.headers, data=json.dumps(self.doc_model.to_json()))
+            r.raise_for_status()
+            return r.json()
+        except exceptions.RequestException as e:
+            print e
+            sys.exit(-1)
 
     def _filtered_request(self, request_url):
         values = {}
@@ -99,10 +122,12 @@ class DocumentsConnection(object):
                 files = {
                     "file": f
                 }
-                payload = {
-                    "document": self.doc_model.to_json()
-                }
-                r = requests.post(request_url, files=files)
+                # payload = {
+                #     "document": self.doc_model.to_json()
+                # }
+                # TODO: Try to make payload work along with file
+                self.headers.pop("Content-Type", 0)
+                r = requests.post(request_url, files=files, headers=self.headers)
                 r.raise_for_status()
             return r.json()
         except exceptions.RequestException as e:
@@ -111,11 +136,6 @@ class DocumentsConnection(object):
         except IOError as e:
             print e
             sys.exit(-1)
-        finally:
-            if r.status_code == requests.codes.unauthorized:
-                print "unauthorized"
-            if r.status_code == requests.codes.ok:
-                print "OK"
 
     def set_request(self):
         if self.document_id:
@@ -178,27 +198,19 @@ class Documents(object):
         response = req.get_response()
         self.response = response
 
-    # def modify(self, base_url, info_uri, tag_id, new_name):
-    #     req = TagsRequest(access_token=self.access_token, api_key=self.api_key, base_url=base_url, info_uri=info_uri,
-    #                       tag_id=tag_id, tag_name=new_name)
-    #     req.set_request()
-    #     request = req.get_request()
-    #
-    #     resp = TagsResponse()
-    #     resp.set_response(request=request)
-    #     response = resp.get_response()
-    #     self.response = response
+    def modify(self, base_url, info_uri, doc_model, document_id):
+        req = DocumentsConnection(access_token=self.access_token, api_key=self.api_key, base_url=base_url,
+                                  info_uri=info_uri, doc_model=doc_model, document_id=document_id)
+        req.set_request()
+        response = req.get_response()
+        self.response = response
 
-    # def delete_tag(self, base_url, info_uri, tag_id):
-    #     req = TagsRequest(access_token=self.access_token, api_key=self.api_key, base_url=base_url, info_uri=info_uri,
-    #                       tag_id=tag_id, delete_tag=True)
-    #     req.set_request()
-    #     request = req.get_request()
-    #
-    #     resp = TagsResponse()
-    #     resp.set_response(request=request)
-    #     response = resp.get_response()
-    #     self.response = response
+    def delete(self, base_url, info_uri, document_id):
+        req = DocumentsConnection(access_token=self.access_token, api_key=self.api_key, base_url=base_url,
+                                  info_uri=info_uri, document_id=document_id, delete_document=True)
+        req.set_request()
+        response = req.get_response()
+        self.response = response
 
     def get_response(self):
         return self.response

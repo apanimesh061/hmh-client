@@ -76,9 +76,12 @@ if __name__ == "__main__":
     d.set_access_token(credentials["access_token"])
     d.set_api_key(HMH_CLIENT_API_KEY)
     # d.get_all(BASE_URL, V1_DOCUMENTS_INFO_URI)
-    # d.get_by_id(BASE_URL, V1_DOCUMENTS_INFO_URI, document_id="1ccf67fe-0824-489f-b65c-0632dc6edce5")
-    new_doc_model = DocumentModel(title="New Document", url="", tags=["190", "192"], note_html="")
-    d.add(BASE_URL, V1_DOCUMENTS_INFO_URI, file_path="C:\\Users\\Animesh\\Downloads\\assignment_4.pdf",
-          doc_model=new_doc_model)
+    d.get_by_id(BASE_URL, V1_DOCUMENTS_INFO_URI, document_id="fddbf398-8273-4699-a427-87ae2e569b28")
+    # new_doc_model = DocumentModel(title="Bloody new doc", url="www.google.com", tags=["190", "192"], note_html="")
+    # d.add(BASE_URL, V1_DOCUMENTS_INFO_URI, file_path="C:\\Users\\Animesh\\Downloads\\assignment_4.pdf",
+    #       doc_model=new_doc_model)
+    # d.modify(base_url=BASE_URL, info_uri=V1_DOCUMENTS_INFO_URI, doc_model=new_doc_model,
+    #          document_id="fddbf398-8273-4699-a427-87ae2e569b28")
+    # d.delete(base_url=BASE_URL, info_uri=V1_DOCUMENTS_INFO_URI, document_id="fddbf398-8273-4699-a427-87ae2e569b28")
     res = d.get_response()
     pprint(res)
