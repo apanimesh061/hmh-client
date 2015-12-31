@@ -37,7 +37,6 @@ class Credentials(object):
             "grant_type": self.grant_type,
             "username": self.username,
             "password": self.password,
-            "Content-Type": "application/x-www-form-urlencoded"
         }
         if self.grant_type == "refresh_token" and self.refresh_token:
             values["refresh_token"] = self.refresh_token
