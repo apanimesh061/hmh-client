@@ -1,4 +1,7 @@
-# hmh-client
+# hmh-client 
+
+### This version of API has been retired.
+### The new versions V2 and V3 are [here](https://github.com/apanimesh061/hmhco-client).
 
 This is a Python wrapper of the [HMH developer portal APIs][hmhco].
 
